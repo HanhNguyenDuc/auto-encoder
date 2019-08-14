@@ -41,8 +41,8 @@ def template_predicting(filename):
 
 
     contrast_img = cv2.medianBlur(gray, 1)
-    ret, gray = cv2.threshold(contrast_img, 140, 255, cv2.THRESH_BINARY)
-    gray = cv2.medianBlur(gray, 5)
+    ret, gray = cv2.threshold(contrast_img, 130, 255, cv2.THRESH_BINARY)
+    gray = cv2.medianBlur(gray, 3)
     contours, hierarchy = cv2.findContours(gray, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
     (contours, boundingBoxes) = sort_contours(contours, method="left-to-right")
     # cv2.imshow('img', gray)
@@ -50,11 +50,11 @@ def template_predicting(filename):
     labels = ''
     # print(len(contours))
     
+    gray_ = cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
     for cnt in contours:
         x, y, w, h = map(int, cv2.boundingRect(cnt))
         if cv2.contourArea(cnt) > 170 and cv2.contourArea(cnt) < 2000:
-            # cv2.imwrite('draft/img' + str(i) + '.png', gray[y: y + h, x: x + w])
-            # cv2.waitKey()   
+            gray_ = cv2.rectangle(gray_, (x, y), (x + w, y + h), (0, 255, 0), 2)  
             max_acc = -1
             label = ''
 
@@ -68,7 +68,8 @@ def template_predicting(filename):
                     label = i[0]
             labels += label
     # print(labels)
-    cv2.imshow('img', img)
+    cv2.imshow('img', gray_)
+    print(labels)
     cv2.waitKey(0)
     return labels
 
@@ -76,5 +77,5 @@ if __name__ == '__main__':
     if not os.path.exists(OUTPUT_FOLDER):
         os.mkdir(OUTPUT_FOLDER)
     for f in os.listdir(INPUT_FOLDER):
-        print(template_predicting(f))
+        template_predicting(f)
         # break
